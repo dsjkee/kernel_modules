@@ -1,1 +1,0 @@
-cmd_/home/denis/eltex/dev_kernel.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/denis/eltex/dev_kernel.ko /home/denis/eltex/dev_kernel.o /home/denis/eltex/dev_kernel.mod.o
