@@ -35,4 +35,4 @@ __attribute__((section(".modinfo"))) =
 
 MODULE_ALIAS("usb:v067Bp2303d*dc*dsc*dp*ic*isc*ip*in*");
 
-MODULE_INFO(srcversion, "15F73F98DBB2D36712917D6");
+MODULE_INFO(srcversion, "41635BB523EBAF5E84C047E");

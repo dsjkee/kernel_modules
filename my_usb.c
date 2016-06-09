@@ -24,11 +24,11 @@ static ssize_t my_read(struct file *f, char __user *buf, size_t size, loff_t *lo
 	int reading, res;
 	printk("READ\n");
 	res = usb_bulk_msg(my_device, usb_rcvbulkpipe(my_device, EP_IN),\
-		buffer,	PACKET_SIZE, &reading, 5000);
+		buffer,	PACKET_SIZE, &reading, 50);
 
 	if(res)
 	{
-		printk(KERN_INFO"res = %d\n", res);
+		printk(KERN_INFO"res = %d %s\n", res, buffer);
 	}
 
 	if(reading < size)
@@ -37,15 +37,22 @@ static ssize_t my_read(struct file *f, char __user *buf, size_t size, loff_t *lo
 		copy_to_user(buf, buffer, size);
 	return 0;
 }
+int my_open (struct inode *my_node, struct file *my_file)
+{
+	printk(KERN_INFO"OPEN FILE\n");
+	return 0;
+}
 
 static struct file_operations f_opr = {
 	.owner = THIS_MODULE,
 	.read = my_read,
+	.open = my_open,
 };
 
 static struct usb_class_driver my_class = {
-	.name = NAME_CLASS,
+	.name = "usb/den%d",
 	.fops = &f_opr,
+	.minor_base = 0,
 };
 
 
