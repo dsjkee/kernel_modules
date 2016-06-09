@@ -5,6 +5,9 @@
 #include <linux/fs.h>
 #define NAME_DEVICE "denis_usb"
 #define NAME_CLASS "denis_class"
+#define EP_IN	0x83
+#define EP_OUT	0x02
+#define PACKET_SIZE 128
 MODULE_LICENSE("GPL");
 
 
@@ -12,22 +15,32 @@ static struct usb_device_id table[] = {
 	{USB_DEVICE(0x067b, 0x2303)},
 	{}
 };
+static char buffer[PACKET_SIZE];
 MODULE_DEVICE_TABLE(usb, table);
+static struct usb_device *my_device;
 
-
-static ssize_t my_read(struct file f*, char __user buf*, size_t, loff_t lof*)
+static ssize_t my_read(struct file *f, char __user *buf, size_t size, loff_t *lof)
 {
+	int reading, res;
+	printk("READ\n");
+	res = usb_bulk_msg(my_device, usb_rcvbulkpipe(my_device, EP_IN),\
+		buffer,	PACKET_SIZE, &reading, 5000);
 
+	if(res)
+	{
+		printk(KERN_INFO"res = %d\n", res);
+	}
+
+	if(reading < size)
+		copy_to_user(buf, buffer, reading);
+	else
+		copy_to_user(buf, buffer, size);
+	return 0;
 }
 
-static ssize_t my_write(struct file *, const char __user *, size_t, loff_t *)
-{
-
-}
 static struct file_operations f_opr = {
 	.owner = THIS_MODULE,
 	.read = my_read,
-	.write =my_write,
 };
 
 static struct usb_class_driver my_class = {
@@ -35,7 +48,6 @@ static struct usb_class_driver my_class = {
 	.fops = &f_opr,
 };
 
-static struct usb_device *my_device;
 
 static int my_probe (struct usb_interface *intf, \
 		      const struct usb_device_id *id)
@@ -56,14 +68,16 @@ static int my_probe (struct usb_interface *intf, \
 	}
 
 	my_device = interface_to_usbdev(intf);
-
-
+	i = usb_register_dev(intf, &my_class);
+	if (i < 0)
+		printk("ERROR\n");
 	return 0;
 }
 
 static void my_disconnect (struct usb_interface *intf)
 {
 	printk(KERN_INFO"Device Disconnect\n");
+	usb_deregister_dev(intf, &my_class);
 }
 
 static struct usb_driver my_usb_driver = {

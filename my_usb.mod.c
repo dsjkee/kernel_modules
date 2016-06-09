@@ -20,6 +20,10 @@ __attribute__((section("__versions"))) = {
 	{ 0x1e94b2a0, __VMLINUX_SYMBOL_STR(module_layout) },
 	{ 0x7179ca05, __VMLINUX_SYMBOL_STR(usb_deregister) },
 	{ 0xbb60c0aa, __VMLINUX_SYMBOL_STR(usb_register_driver) },
+	{ 0xe96f57c8, __VMLINUX_SYMBOL_STR(usb_register_dev) },
+	{ 0x4f8b5ddb, __VMLINUX_SYMBOL_STR(_copy_to_user) },
+	{ 0x426a366d, __VMLINUX_SYMBOL_STR(usb_bulk_msg) },
+	{ 0x8f9bcb81, __VMLINUX_SYMBOL_STR(usb_deregister_dev) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xbdfb6dbb, __VMLINUX_SYMBOL_STR(__fentry__) },
 };
@@ -31,4 +35,4 @@ __attribute__((section(".modinfo"))) =
 
 MODULE_ALIAS("usb:v067Bp2303d*dc*dsc*dp*ic*isc*ip*in*");
 
-MODULE_INFO(srcversion, "FAA2A641F9AFC7B678C0585");
+MODULE_INFO(srcversion, "15F73F98DBB2D36712917D6");
