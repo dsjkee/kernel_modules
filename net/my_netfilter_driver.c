@@ -6,18 +6,87 @@
 #include <linux/ip.h>
 #include <linux/tcp.h>
 #include <linux/skbuff.h>
+#include <linux/random.h>
 
 #define MY_STRING "vk.com"
 
 MODULE_LICENSE("GPL");
-static int find_string(char *dest, const char *src, int d_size, int s_size)
+
+static int nod(int a, int b)
 {
-	int i, res;
+	int r = 0;
+	if(b > a)
+	{
+		r = a;
+		a = b;
+		b = r;
+		r = 0;
+	}
+	while(b)
+	{
+		r = a%b;
+		a = b;
+		b = r;
+	}
+	return a;
+}
+
+static int quick_degree(int a, int x, int p)
+{
+	int y = 1, s = a;
+
+	while(x > 0)
+	{
+		if(x&1)
+		{
+			y = (y*s)%p;
+		}
+		x = x>>1;
+		s = (s*s)%p;
+	}
+	return y;
+}
+unsigned short true_simple(int var)
+{
+	int a = 0, i = 0;
+
+	//srand(time(0));
+	while(i != 40)
+	{
+		a = get_random_int()%var;
+		if((quick_degree(a, var-1, var) == 1)&&(nod(var, a) == 1))
+			i++;
+		else
+			return 0;
+	}
+	return 1;
+}
+static int gen_q(void)
+{
+	int p,q;
+
+	q = get_random_int()%+257;
+	p = 2*q + 1;
+	while((true_simple(q) == 0) || (true_simple(p) == 0))
+	{
+		q = get_random_int()%+257;
+		p = 2*q + 1;
+	}
+	return p;
+
+}
+static int Rabin_Karp(char *dest, const char *src, int d_size, int s_size)
+{
+	int i, res, q, s0, si;
+	q = gen_q();
+	s0 = (int)(*src)%q;
 	for(i = 0; i < d_size - s_size; ++i)
 	{
-		res = strncmp(dest + i, src, s_size);
-		if(res == 0)
-			return 1;
+		si = (int)(*(dest + i));
+		if(s0 == si)
+			res = strncmp(dest + i, src, s_size);
+			if(res == 0)
+				return 1;
 	}
 	return 0;
 } 
@@ -44,7 +113,7 @@ unsigned int my_hook_func(const struct nf_hook_ops *ops,
 		data_size = ntohs(ip->tot_len) - (ip->ihl) * 4 - tcp_size;
 		printk(KERN_INFO"ip_tot_len = %d ip_hdr_len = %d tcp_len = %d\n", ntohs(ip->tot_len), (ip->ihl) * 4, tcp_size);
 		printk(KERN_INFO"Data size %d  string size %zd", data_size, strlen(MY_STRING));
-		res = find_string((char*)data, MY_STRING, data_size, strlen(MY_STRING));
+		res = Rabin_Karp((char*)data, MY_STRING, data_size, strlen(MY_STRING));
 		if(res)
 		{
 			printk(KERN_INFO"vk.com PACKET\n");
