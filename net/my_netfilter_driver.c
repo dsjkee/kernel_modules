@@ -41,8 +41,8 @@ unsigned int my_hook_func(const struct nf_hook_ops *ops,
 		tcp = tcp_hdr(skb);
 		tcp_size = tcp_hdrlen(skb);
 		data = tcp + tcp_size;
-		data_size = (ip->tot_len) - (ip->ihl) * 4 - tcp_size;
-		printk(KERN_INFO"ip_tot_len = %d ip_hdr_len = %d tcp_len = %d\n", ip->tot_len, (ip->ihl) * 4, tcp_size);
+		data_size = ntohs(ip->tot_len) - (ip->ihl) * 4 - tcp_size;
+		printk(KERN_INFO"ip_tot_len = %d ip_hdr_len = %d tcp_len = %d\n", ntohs(ip->tot_len), (ip->ihl) * 4, tcp_size);
 		printk(KERN_INFO"Data size %d  string size %zd", data_size, strlen(MY_STRING));
 		res = find_string((char*)data, MY_STRING, data_size, strlen(MY_STRING));
 		if(res)
